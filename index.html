@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ADRIATICA, a slow zine of two coasts</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,560&family=Space+Grotesk:wght@400;500&display=swap');
+
+:root{
+  --cream:#F7EDDF;
+  --amber:#F0A868;
+  --terra:#C96F4A;
+  --rose:#D89A93;
+  --teal:#3F7F7C;
+  --deepteal:#28524F;
+  --lav:#A891C6;
+  --dusk:#43304F;
+  --ink:#3A2A33;
+  --glow:#FFD9A0;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  background:var(--dusk);
+  color:var(--cream);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- stage ---------- */
+.stage{position:fixed;inset:0;overflow:hidden}
+
+.page{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;
+  opacity:0;visibility:hidden;
+  transition:opacity .7s ease, visibility 0s linear .7s;
+}
+.page.active{
+  opacity:1;visibility:visible;
+  transition:opacity .7s ease;
+}
+
+/* ---------- scene ---------- */
+.scene{position:absolute;inset:0;overflow:hidden}
+.scene svg{
+  position:absolute;inset:0;width:100%;height:100%;
+  display:block;
+}
+
+/* parallax layers */
+.l1{transform:translate3d(calc(var(--px,0)*-6px),  calc(var(--py,0)*-4px),0)}
+.l2{transform:translate3d(calc(var(--px,0)*-14px), calc(var(--py,0)*-9px),0)}
+.l3{transform:translate3d(calc(var(--px,0)*-26px), calc(var(--py,0)*-15px),0)}
+.l4{transform:translate3d(calc(var(--px,0)*-42px), calc(var(--py,0)*-22px),0)}
+.l1,.l2,.l3,.l4{transition:transform .6s cubic-bezier(.2,.6,.3,1);will-change:transform}
+
+/* gentle ambient float, applied to inner groups */
+.float{animation:float 8s ease-in-out infinite}
+.float-slow{animation:float 13s ease-in-out infinite}
+.bob{animation:bob 6s ease-in-out infinite}
+.flicker{animation:flicker 3.2s ease-in-out infinite}
+.shimmer{animation:shimmer 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-8px) rotate(-1.2deg)}}
+@keyframes flicker{0%,100%{opacity:1}45%{opacity:.75}60%{opacity:.95}75%{opacity:.8}}
+@keyframes shimmer{0%,100%{opacity:.5}50%{opacity:.9}}
+
+/* cover breathes */
+.breathe{animation:breathe 10s ease-in-out infinite;transform-origin:50% 70%}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+
+/* soft drift in when a page wakes */
+.page .drift{opacity:0;transform:translateY(14px);transition:opacity 1.4s ease .25s, transform 1.4s ease .25s}
+.page.active .drift{opacity:1;transform:translateY(0)}
+
+/* ---------- copy ---------- */
+.copy{
+  position:relative;z-index:5;
+  text-align:center;
+  padding:0 1.5rem calc(6.5rem + env(safe-area-inset-bottom));
+  max-width:34rem;
+}
+.kicker{
+  font-size:.72rem;letter-spacing:.42em;text-transform:uppercase;
+  opacity:.85;margin-bottom:.9rem;font-weight:500;
+}
+.line{
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:560;font-size:clamp(1.7rem,5.4vw,2.7rem);
+  line-height:1.18;text-wrap:balance;
+  text-shadow:0 2px 30px rgba(40,20,30,.35);
+}
+.sub{
+  margin-top:.85rem;font-size:.95rem;opacity:.9;line-height:1.5;
+}
+.glow{
+  display:inline-block;margin-top:1.4rem;
+  padding:.72rem 1.6rem;border-radius:999px;
+  font-size:.9rem;font-weight:500;letter-spacing:.04em;
+  color:var(--ink);background:var(--glow);text-decoration:none;
+  box-shadow:0 0 22px 4px rgba(255,217,160,.45), 0 0 60px 10px rgba(255,190,120,.22);
+  animation:glowpulse 4.5s ease-in-out infinite;
+  transition:transform .3s ease, box-shadow .3s ease;
+}
+.glow:hover{transform:translateY(-2px);box-shadow:0 0 30px 8px rgba(255,217,160,.6),0 0 80px 16px rgba(255,190,120,.3)}
+@keyframes glowpulse{0%,100%{box-shadow:0 0 22px 4px rgba(255,217,160,.45),0 0 60px 10px rgba(255,190,120,.22)}50%{box-shadow:0 0 30px 7px rgba(255,217,160,.6),0 0 80px 14px rgba(255,190,120,.3)}}
+
+/* ---------- bloom transition ---------- */
+.bloom{
+  position:fixed;inset:0;z-index:40;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at 50% 55%, rgba(255,236,200,.95) 0%, rgba(255,214,166,.75) 32%, rgba(244,170,120,.35) 58%, rgba(70,45,70,0) 82%);
+}
+.bloom.flash{animation:bloom 1.05s ease-in-out}
+@keyframes bloom{0%{opacity:0}42%{opacity:.92}100%{opacity:0}}
+
+/* ---------- grain ---------- */
+.grain{
+  position:fixed;inset:0;z-index:30;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
+}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed;left:0;right:0;z-index:50;
+  bottom:calc(1.2rem + env(safe-area-inset-bottom));
+  display:flex;align-items:center;justify-content:center;gap:1.1rem;
+}
+.arrow{
+  width:2.7rem;height:2.7rem;border-radius:50%;
+  border:1px solid rgba(247,237,223,.4);
+  background:rgba(40,30,45,.28);color:var(--cream);
+  font-size:1.05rem;cursor:pointer;backdrop-filter:blur(4px);
+  transition:background .3s,border-color .3s,transform .3s;
+  display:grid;place-items:center;line-height:1;
+}
+.arrow:hover{background:rgba(255,217,160,.22);border-color:rgba(255,217,160,.7);transform:translateY(-1px)}
+.dots{display:flex;gap:.55rem}
+.dot{
+  width:.55rem;height:.55rem;border-radius:50%;
+  border:none;cursor:pointer;padding:0;
+  background:rgba(247,237,223,.35);
+  transition:background .4s,transform .4s;
+}
+.dot[aria-current="true"]{background:var(--glow);transform:scale(1.35);box-shadow:0 0 10px rgba(255,217,160,.7)}
+
+/* focus */
+a:focus-visible,button:focus-visible{
+  outline:2.5px solid var(--glow);outline-offset:3px;border-radius:999px;
+}
+
+/* screen reader only */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- sound toggle ---------- */
+.sound{font-size:.95rem}
+.sound[aria-pressed="true"]{background:rgba(255,217,160,.28);border-color:var(--glow);color:var(--glow);box-shadow:0 0 14px rgba(255,217,160,.45)}
+.sound .off-ic{display:inline}
+.sound .on-ic{display:none}
+.sound[aria-pressed="true"] .off-ic{display:none}
+.sound[aria-pressed="true"] .on-ic{display:inline}
+
+/* ---------- particles ---------- */
+#fx{position:fixed;inset:0;z-index:20;pointer-events:none}
+
+/* ---------- the dive, for real ---------- */
+.diver,.rings{transform-box:fill-box;transform-origin:center}
+#p3.active .diver{animation:diveLoop 9s cubic-bezier(.55,0,.85,.6) 1.2s infinite}
+@keyframes diveLoop{
+  0%{transform:translateY(0) rotate(0deg);opacity:1}
+  26%{transform:translateY(228px) rotate(14deg);opacity:1}
+  30%{transform:translateY(258px) rotate(18deg);opacity:0}
+  62%{transform:translateY(-16px);opacity:0}
+  74%{transform:translateY(0);opacity:1}
+  100%{transform:translateY(0);opacity:1}
+}
+.rings{opacity:0}
+#p3.active .rings{animation:ringsBurst 9s ease-out 1.2s infinite}
+@keyframes ringsBurst{
+  0%,25%{opacity:0;transform:scale(.4)}
+  30%{opacity:.95;transform:scale(.7)}
+  54%{opacity:0;transform:scale(2)}
+  100%{opacity:0;transform:scale(2)}
+}
+
+/* ---------- shooting star ---------- */
+.star{
+  position:absolute;top:10%;left:-14%;width:110px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(255,240,206,0),#FFF0CE);
+  transform:rotate(14deg);opacity:0;pointer-events:none;
+  filter:drop-shadow(0 0 6px rgba(255,240,206,.9));
+}
+#p7.active .star{animation:streak 9s linear 2.5s infinite}
+@keyframes streak{
+  0%,86%{opacity:0;left:-14%;top:9%}
+  88%{opacity:.95}
+  95%{opacity:0;left:72%;top:32%}
+  100%{opacity:0;left:72%;top:32%}
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .float,.float-slow,.bob,.flicker,.shimmer,.breathe,.glow,.bloom.flash,
+  #p3.active .diver,#p3.active .rings,#p7.active .star{animation:none !important}
+  #p3.active .rings{opacity:.7}
+  #fx{display:none}
+  .l1,.l2,.l3,.l4{transform:none !important;transition:none}
+  .page{transition:opacity .3s ease, visibility 0s linear .3s}
+  .page.active{transition:opacity .3s ease}
+  .page .drift{transition:opacity .3s ease}
+}
+
+@media (max-width:640px){
+  .line{font-size:clamp(1.5rem,6.5vw,2rem)}
+  .copy{padding-bottom:calc(6rem + env(safe-area-inset-bottom))}
+}
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+<!-- ============ 1 · COVER · Rovinj golden hour ============ -->
+<section class="page active" id="p1" role="group" aria-roledescription="page" aria-label="Cover. Adriatica.">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice" class="breathe">
+      <defs>
+        <linearGradient id="a-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#5C3A5E"/><stop offset=".4" stop-color="#C4708A"/>
+          <stop offset=".72" stop-color="#F0A868"/><stop offset="1" stop-color="#FFD9A0"/>
+        </linearGradient>
+        <linearGradient id="a-sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8A278"/><stop offset=".5" stop-color="#8A7A8E"/><stop offset="1" stop-color="#43304F"/>
+        </linearGradient>
+        <radialGradient id="a-sun" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#FFF3D6"/><stop offset=".45" stop-color="#FFD9A0" stop-opacity=".85"/><stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="460" fill="url(#a-sky)"/>
+        <circle cx="500" cy="380" r="190" fill="url(#a-sun)"/>
+        <circle cx="500" cy="380" r="52" fill="#FFF0CE"/>
+      </g>
+      <g class="l2">
+        <rect y="430" width="1000" height="270" fill="url(#a-sea)"/>
+        <g class="shimmer">
+          <rect x="380" y="450" width="240" height="4" rx="2" fill="#FFE9BF" opacity=".7"/>
+          <rect x="330" y="480" width="340" height="3" rx="1.5" fill="#FFDCA8" opacity=".5"/>
+          <rect x="410" y="516" width="180" height="3" rx="1.5" fill="#FFDCA8" opacity=".4"/>
+        </g>
+      </g>
+      <g class="l3">
+        <g class="float-slow">
+          <!-- Rovinj promontory silhouette -->
+          <path d="M250 470 Q270 430 320 428 L330 405 355 405 360 380 372 380 372 300 384 285 396 300 396 380 410 380 415 405 450 405 460 430 520 428 560 408 640 410 700 432 760 470 Z" fill="#7A4E63"/>
+          <path d="M300 470 L300 440 330 440 330 470 M470 470 L470 435 505 435 505 470 M560 470 L560 442 600 442 600 470 M640 470 L640 445 690 445 690 470" fill="#93607A" stroke="none"/>
+          <!-- warm windows -->
+          <g class="flicker" fill="#FFD9A0">
+            <rect x="308" y="446" width="6" height="8" rx="1"/><rect x="480" y="442" width="6" height="8" rx="1"/>
+            <rect x="572" y="448" width="6" height="8" rx="1"/><rect x="655" y="450" width="6" height="8" rx="1"/>
+            <rect x="382" y="330" width="5" height="9" rx="1"/>
+          </g>
+          <rect x="240" y="466" width="540" height="10" rx="4" fill="#5E3B52"/>
+        </g>
+      </g>
+      <g class="l4">
+        <path d="M0 700 L0 620 Q160 585 340 612 Q520 640 700 608 Q860 582 1000 615 L1000 700 Z" fill="#32243D"/>
+        <g class="shimmer" opacity=".55">
+          <rect x="120" y="640" width="90" height="3" rx="1.5" fill="#E8A278"/>
+          <rect x="700" y="650" width="120" height="3" rx="1.5" fill="#E8A278"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">Adriatica</p>
+    <h1 class="line">Two coasts. One sea. Come drift.</h1>
+    <a class="glow" href="#p2" data-goto="1">Drift in</a>
+  </div>
+</section>
+
+<!-- ============ 2 · SPLIT ============ -->
+<section class="page" id="p2" role="group" aria-roledescription="page" aria-label="Split">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="b-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#EFB98A"/><stop offset=".55" stop-color="#F5D3A8"/><stop offset="1" stop-color="#F7EDDF"/>
+        </linearGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="700" fill="url(#b-sky)"/>
+        <circle cx="820" cy="140" r="120" fill="#FFE9C2" opacity=".8"/>
+      </g>
+      <g class="l2">
+        <!-- distant campanile -->
+        <g class="float-slow">
+          <rect x="700" y="150" width="54" height="330" rx="6" fill="#D9A878"/>
+          <rect x="708" y="180" width="38" height="46" rx="16" fill="#F5D3A8"/>
+          <rect x="708" y="250" width="38" height="46" rx="16" fill="#F5D3A8"/>
+          <rect x="708" y="320" width="38" height="46" rx="16" fill="#F5D3A8"/>
+          <path d="M694 150 L727 96 760 150 Z" fill="#C96F4A"/>
+        </g>
+        <path d="M0 480 L1000 480 L1000 700 L0 700 Z" fill="#E3B98E"/>
+      </g>
+      <g class="l3">
+        <!-- peristyle arches, warm stone -->
+        <g class="float-slow">
+          <rect x="80" y="250" width="620" height="240" fill="#D9A878"/>
+          <g fill="#B5825C">
+            <rect x="110" y="250" width="26" height="230" rx="8"/><rect x="250" y="250" width="26" height="230" rx="8"/>
+            <rect x="390" y="250" width="26" height="230" rx="8"/><rect x="530" y="250" width="26" height="230" rx="8"/>
+            <rect x="660" y="250" width="26" height="230" rx="8"/>
+          </g>
+          <g fill="#8A5E48">
+            <path d="M136 480 L136 340 Q193 290 250 340 L250 480 Z"/>
+            <path d="M276 480 L276 340 Q333 290 390 340 L390 480 Z"/>
+            <path d="M416 480 L416 340 Q473 290 530 340 L530 480 Z"/>
+            <path d="M556 480 L556 340 Q613 290 660 340 L660 480 Z"/>
+          </g>
+          <rect x="60" y="230" width="660" height="24" rx="8" fill="#C99568"/>
+        </g>
+      </g>
+      <g class="l4">
+        <rect y="560" width="1000" height="140" fill="#C99568"/>
+        <!-- palm -->
+        <g class="float">
+          <path d="M870 560 Q862 470 878 420" stroke="#7A5A40" stroke-width="12" fill="none" stroke-linecap="round"/>
+          <g fill="#5E7A52">
+            <path d="M878 420 Q930 390 985 402 Q930 425 878 428 Z"/>
+            <path d="M878 420 Q826 388 770 400 Q826 424 878 428 Z"/>
+            <path d="M878 420 Q905 366 950 350 Q900 400 880 424 Z"/>
+            <path d="M878 420 Q852 366 806 352 Q856 400 876 424 Z"/>
+          </g>
+        </g>
+        <ellipse cx="420" cy="640" rx="240" ry="14" fill="#B5825C" opacity=".6"/>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">Split</p>
+    <h2 class="line">An emperor's home a whole city moved into.</h2>
+    <p class="sub">Free: wander Diocletian's Palace.</p>
+    <a class="glow" href="https://www.google.com/maps/search/?api=1&amp;query=Diocletians+Palace+Split" target="_blank" rel="noopener">Find the palace</a>
+  </div>
+</section>
+
+<!-- ============ 3 · THE DIVE ============ -->
+<section class="page" id="p3" role="group" aria-roledescription="page" aria-label="The dive">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="c-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F5D3A8"/><stop offset="1" stop-color="#9FCFC6"/>
+        </linearGradient>
+        <linearGradient id="c-sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#66B3AB"/><stop offset=".6" stop-color="#3F7F7C"/><stop offset="1" stop-color="#28524F"/>
+        </linearGradient>
+      </defs>
+      <g class="l1"><rect width="1000" height="700" fill="url(#c-sky)"/>
+        <circle cx="230" cy="120" r="90" fill="#FFF0CE" opacity=".75"/>
+      </g>
+      <g class="l2">
+        <rect y="430" width="1000" height="270" fill="url(#c-sea)"/>
+        <g class="shimmer">
+          <ellipse cx="520" cy="470" rx="120" ry="8" fill="#BFE8DF" opacity=".5"/>
+          <ellipse cx="520" cy="470" rx="60" ry="4" fill="#E4F5EE" opacity=".6"/>
+        </g>
+      </g>
+      <g class="l3">
+        <!-- cliff -->
+        <path d="M1000 700 L1000 180 Q930 190 900 250 Q870 310 880 380 Q840 420 850 480 L800 540 830 620 780 700 Z" fill="#B5825C"/>
+        <path d="M1000 700 L1000 300 Q950 320 940 380 Q905 430 915 490 L880 560 900 640 870 700 Z" fill="#C99568" opacity=".8"/>
+      </g>
+      <g class="l4">
+        <!-- diver mid-air -->
+        <g class="diver">
+          <g fill="#43304F" transform="translate(520 250) rotate(-18)">
+            <circle cx="0" cy="-46" r="13"/>
+            <path d="M-6 -34 Q4 -20 2 6 L14 44 8 48 -4 14 -14 46 -21 42 -10 2 Q-14 -20 -6 -34 Z"/>
+            <path d="M-4 -28 L-40 -46 -38 -53 -1 -37 Z"/>
+            <path d="M2 -28 L40 -40 38 -47 3 -36 Z"/>
+          </g>
+        </g>
+        <!-- splash rings, burst on impact -->
+        <g class="rings">
+          <ellipse cx="520" cy="505" rx="34" ry="6" fill="none" stroke="#BFE8DF" stroke-width="3"/>
+          <ellipse cx="520" cy="505" rx="70" ry="11" fill="none" stroke="#8FD0C4" stroke-width="2" opacity=".6"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">The dive</p>
+    <h2 class="line">Climb the rock. Fall into the blue.</h2>
+    <p class="sub">Deep water solo, beginners welcome.</p>
+    <a class="glow" href="https://www.given2flyadventures.com" target="_blank" rel="noopener">Given2Fly Adventures</a>
+  </div>
+</section>
+
+<!-- ============ 4 · HVAR ============ -->
+<section class="page" id="p4" role="group" aria-roledescription="page" aria-label="Hvar">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="d-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6B4A78"/><stop offset=".5" stop-color="#C4708A"/><stop offset="1" stop-color="#F0A868"/>
+        </linearGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="700" fill="url(#d-sky)"/>
+        <circle cx="720" cy="330" r="130" fill="#FFD9A0" opacity=".55"/>
+        <circle cx="720" cy="330" r="46" fill="#FFF0CE"/>
+      </g>
+      <g class="l2">
+        <!-- fortress hill -->
+        <path d="M0 420 Q200 300 420 350 Q650 400 1000 360 L1000 700 L0 700 Z" fill="#7A4E63"/>
+        <g class="float-slow">
+          <rect x="230" y="240" width="180" height="80" rx="6" fill="#8A5E48"/>
+          <path d="M230 240 L230 218 250 218 250 240 M280 240 L280 218 300 218 300 240 M330 240 L330 218 350 218 350 240 M380 240 L380 218 400 218 400 240" fill="#8A5E48"/>
+          <rect x="290" y="270" width="26" height="50" rx="12" fill="#5E3B52"/>
+          <g class="flicker" fill="#FFD9A0"><rect x="252" y="256" width="7" height="10" rx="2"/><rect x="360" y="256" width="7" height="10" rx="2"/></g>
+          <path d="M200 320 L440 320 L470 350 L170 350 Z" fill="#6E4356"/>
+        </g>
+      </g>
+      <g class="l3">
+        <!-- lavender rows -->
+        <path d="M0 520 Q300 470 1000 500 L1000 700 L0 700 Z" fill="#5E4470"/>
+        <g fill="#A891C6">
+          <ellipse cx="90" cy="560" rx="52" ry="17"/><ellipse cx="230" cy="548" rx="58" ry="18"/>
+          <ellipse cx="380" cy="556" rx="54" ry="17"/><ellipse cx="530" cy="546" rx="60" ry="18"/>
+          <ellipse cx="690" cy="554" rx="56" ry="17"/><ellipse cx="850" cy="546" rx="58" ry="18"/>
+        </g>
+        <g fill="#BFA6DE">
+          <ellipse cx="160" cy="600" rx="60" ry="19"/><ellipse cx="330" cy="592" rx="64" ry="20"/>
+          <ellipse cx="510" cy="600" rx="62" ry="19"/><ellipse cx="690" cy="592" rx="66" ry="20"/>
+          <ellipse cx="880" cy="602" rx="60" ry="19"/>
+        </g>
+      </g>
+      <g class="l4">
+        <g fill="#CBB4E8" class="float">
+          <ellipse cx="80" cy="666" rx="80" ry="24"/><ellipse cx="300" cy="676" rx="90" ry="26"/>
+          <ellipse cx="540" cy="668" rx="86" ry="25"/><ellipse cx="780" cy="678" rx="92" ry="26"/><ellipse cx="970" cy="666" rx="70" ry="24"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">Hvar</p>
+    <h2 class="line">Lavender by day. Dancing by dark.</h2>
+    <p class="sub">Free sunset at Napoleon Fortress.</p>
+    <a class="glow" href="https://www.google.com/maps/search/?api=1&amp;query=Napoleon+Fortress+Hvar" target="_blank" rel="noopener">Find the fortress</a>
+  </div>
+</section>
+
+<!-- ============ 5 · THE CROSSING ============ -->
+<section class="page" id="p5" role="group" aria-roledescription="page" aria-label="The crossing">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="e-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F5D3A8"/><stop offset="1" stop-color="#D89A93"/>
+        </linearGradient>
+        <linearGradient id="e-sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#5A9E98"/><stop offset="1" stop-color="#28524F"/>
+        </linearGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="700" fill="url(#e-sky)"/>
+        <!-- gulls -->
+        <g stroke="#7A5A6E" stroke-width="4" fill="none" stroke-linecap="round" class="float">
+          <path d="M240 150 q14 -12 28 0 q14 -12 28 0"/>
+          <path d="M330 110 q11 -9 22 0 q11 -9 22 0"/>
+        </g>
+      </g>
+      <g class="l2">
+        <!-- distant islands -->
+        <path d="M60 370 Q160 336 280 366 L280 380 60 380 Z" fill="#9E7A93" opacity=".8"/>
+        <path d="M700 362 Q810 330 950 360 L950 380 700 380 Z" fill="#9E7A93" opacity=".7"/>
+        <rect y="375" width="1000" height="325" fill="url(#e-sea)"/>
+      </g>
+      <g class="l3">
+        <g class="shimmer">
+          <rect x="150" y="430" width="200" height="4" rx="2" fill="#BFE8DF" opacity=".45"/>
+          <rect x="620" y="470" width="260" height="4" rx="2" fill="#BFE8DF" opacity=".4"/>
+          <rect x="320" y="560" width="200" height="4" rx="2" fill="#8FD0C4" opacity=".35"/>
+        </g>
+      </g>
+      <g class="l4">
+        <!-- small boat with wake -->
+        <g class="bob">
+          <path d="M400 480 L620 480 L586 522 L436 522 Z" fill="#F7EDDF"/>
+          <rect x="452" y="440" width="110" height="42" rx="10" fill="#C96F4A"/>
+          <rect x="470" y="452" width="18" height="14" rx="4" fill="#FFE9C2"/>
+          <rect x="500" y="452" width="18" height="14" rx="4" fill="#FFE9C2"/>
+          <rect x="530" y="452" width="18" height="14" rx="4" fill="#FFE9C2"/>
+        </g>
+        <g class="shimmer">
+          <path d="M436 540 Q510 556 586 540" stroke="#BFE8DF" stroke-width="5" fill="none" opacity=".6" stroke-linecap="round"/>
+          <path d="M410 566 Q510 590 612 566" stroke="#8FD0C4" stroke-width="4" fill="none" opacity=".4" stroke-linecap="round"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">The crossing</p>
+    <h2 class="line">Fifty minutes of open sea, and you're somewhere softer.</h2>
+    <p class="sub">The fast catamaran between coasts.</p>
+    <a class="glow" href="https://www.krilo.hr/en" target="_blank" rel="noopener">Krilo ferry</a>
+  </div>
+</section>
+
+<!-- ============ 6 · ROVINJ ============ -->
+<section class="page" id="p6" role="group" aria-roledescription="page" aria-label="Rovinj">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="f-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#C4708A"/><stop offset=".6" stop-color="#F0A868"/><stop offset="1" stop-color="#FFE9C2"/>
+        </linearGradient>
+        <linearGradient id="f-sea" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#E8A278"/><stop offset="1" stop-color="#3F7F7C"/>
+        </linearGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="700" fill="url(#f-sky)"/>
+        <circle cx="290" cy="200" r="110" fill="#FFF0CE" opacity=".7"/>
+      </g>
+      <g class="l2"><rect y="470" width="1000" height="230" fill="url(#f-sea)"/></g>
+      <g class="l3">
+        <g class="float-slow">
+          <!-- rock -->
+          <path d="M280 480 Q300 440 340 436 L680 436 Q730 442 750 480 Z" fill="#8A5E48"/>
+          <!-- pastel houses stacked -->
+          <g>
+            <rect x="330" y="380" width="60" height="58" rx="4" fill="#E8B4A0"/>
+            <rect x="394" y="368" width="58" height="70" rx="4" fill="#F2CFA0"/>
+            <rect x="456" y="384" width="52" height="54" rx="4" fill="#D89A93"/>
+            <rect x="512" y="372" width="60" height="66" rx="4" fill="#E8C8A8"/>
+            <rect x="576" y="382" width="56" height="56" rx="4" fill="#DFA88E"/>
+            <rect x="636" y="392" width="48" height="46" rx="4" fill="#E8B4A0"/>
+            <g fill="#B06A50">
+              <path d="M326 382 L360 360 394 382 Z"/><path d="M390 370 L423 348 456 370 Z"/>
+              <path d="M452 386 L482 366 512 386 Z"/><path d="M508 374 L542 352 576 374 Z"/>
+              <path d="M572 384 L604 364 636 384 Z"/><path d="M632 394 L660 376 688 394 Z"/>
+            </g>
+            <g class="flicker" fill="#FFD9A0">
+              <rect x="348" y="398" width="8" height="11" rx="2"/><rect x="414" y="390" width="8" height="11" rx="2"/>
+              <rect x="530" y="392" width="8" height="11" rx="2"/><rect x="594" y="400" width="8" height="11" rx="2"/>
+            </g>
+          </g>
+          <!-- bell tower -->
+          <rect x="470" y="240" width="40" height="146" rx="4" fill="#F2CFA0"/>
+          <rect x="477" y="262" width="26" height="30" rx="10" fill="#C4886A"/>
+          <rect x="477" y="306" width="26" height="30" rx="10" fill="#C4886A"/>
+          <path d="M462 240 L490 190 518 240 Z" fill="#B06A50"/>
+          <circle cx="490" cy="184" r="5" fill="#FFD9A0"/>
+        </g>
+        <!-- reflection -->
+        <g opacity=".28" class="shimmer">
+          <rect x="330" y="486" width="354" height="70" rx="8" fill="#E8B4A0"/>
+          <rect x="470" y="486" width="40" height="110" rx="8" fill="#F2CFA0"/>
+        </g>
+      </g>
+      <g class="l4">
+        <g class="shimmer">
+          <rect x="120" y="600" width="160" height="4" rx="2" fill="#FFDCA8" opacity=".5"/>
+          <rect x="700" y="620" width="200" height="4" rx="2" fill="#FFDCA8" opacity=".4"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">Rovinj</p>
+    <h2 class="line">A whole town built on a rock in the sea.</h2>
+    <p class="sub">Free: climb Grisia to the church.</p>
+    <a class="glow" href="https://www.google.com/maps/search/?api=1&amp;query=Grisia+Rovinj" target="_blank" rel="noopener">Find Grisia</a>
+  </div>
+</section>
+
+<!-- ============ 7 · THE TABLE ============ -->
+<section class="page" id="p7" role="group" aria-roledescription="page" aria-label="The table">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#2E2140"/><stop offset=".55" stop-color="#6B4A78"/><stop offset="1" stop-color="#C4708A"/>
+        </linearGradient>
+        <radialGradient id="g-candle" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#FFE9C2" stop-opacity=".9"/><stop offset="1" stop-color="#FFD9A0" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="700" fill="url(#g-sky)"/>
+        <g fill="#FFE9C2" class="shimmer">
+          <circle cx="150" cy="90" r="2.4"/><circle cx="320" cy="60" r="1.8"/><circle cx="520" cy="110" r="2"/>
+          <circle cx="700" cy="70" r="2.4"/><circle cx="860" cy="130" r="1.8"/><circle cx="420" cy="170" r="1.6"/>
+        </g>
+        <circle cx="790" cy="180" r="34" fill="#F7EDDF" opacity=".9"/>
+      </g>
+      <g class="l2">
+        <rect y="430" width="1000" height="270" fill="#3B2B55"/>
+        <g class="shimmer" opacity=".5">
+          <rect x="600" y="470" width="180" height="3" rx="1.5" fill="#D89A93"/>
+          <rect x="660" y="510" width="120" height="3" rx="1.5" fill="#C4708A"/>
+        </g>
+      </g>
+      <g class="l3">
+        <!-- cliff terrace -->
+        <path d="M0 700 L0 470 Q140 450 300 470 Q430 486 520 540 L560 700 Z" fill="#4A3050"/>
+      </g>
+      <g class="l4">
+        <!-- candle glow -->
+        <circle cx="270" cy="430" r="140" fill="url(#g-candle)" class="flicker"/>
+        <!-- table -->
+        <g>
+          <ellipse cx="270" cy="470" rx="120" ry="20" fill="#F7EDDF"/>
+          <path d="M180 474 L196 560 M360 474 L344 560" stroke="#8A5E48" stroke-width="9" stroke-linecap="round"/>
+          <!-- candle -->
+          <rect x="262" y="428" width="14" height="34" rx="4" fill="#FFE9C2"/>
+          <g class="flicker">
+            <ellipse cx="269" cy="418" rx="6" ry="11" fill="#FFD9A0"/>
+            <ellipse cx="269" cy="420" rx="3" ry="6" fill="#FFF3D6"/>
+          </g>
+          <!-- two glasses -->
+          <g stroke="#E8C8A8" stroke-width="3.5" fill="none" stroke-linecap="round">
+            <path d="M216 442 q0 14 12 14 q12 0 12 -14 M228 456 L228 470 M220 470 L236 470"/>
+            <path d="M304 442 q0 14 12 14 q12 0 12 -14 M316 456 L316 470 M308 470 L324 470"/>
+          </g>
+          <path d="M220 448 q8 8 16 0 M308 448 q8 8 16 0" stroke="#C4708A" stroke-width="4" fill="none" stroke-linecap="round"/>
+        </g>
+      </g>
+    </svg>
+    <div class="star"></div>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">The table</p>
+    <h2 class="line">One dinner above the waves. Book it.</h2>
+    <a class="glow" href="https://www.puntulina.eu" target="_blank" rel="noopener">Puntulina</a>
+  </div>
+</section>
+
+<!-- ============ 8 · LOOP HOME ============ -->
+<section class="page" id="p8" role="group" aria-roledescription="page" aria-label="Begin again">
+  <div class="scene" aria-hidden="true">
+    <svg viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="h-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#43304F"/><stop offset=".45" stop-color="#8A5E7E"/>
+          <stop offset=".75" stop-color="#D89A93"/><stop offset="1" stop-color="#F0A868"/>
+        </linearGradient>
+      </defs>
+      <g class="l1">
+        <rect width="1000" height="700" fill="url(#h-sky)"/>
+        <circle cx="500" cy="430" r="150" fill="#FFD9A0" opacity=".35"/>
+      </g>
+      <g class="l2">
+        <!-- blended coast silhouettes -->
+        <path d="M0 430 Q180 396 340 420 Q420 400 470 356 L482 356 482 320 492 308 502 320 502 356 514 356 Q560 402 660 418 Q820 396 1000 428 L1000 700 L0 700 Z" fill="#6E4A66" opacity=".85" class="float-slow"/>
+      </g>
+      <g class="l3">
+        <path d="M0 500 Q240 462 480 492 Q720 520 1000 486 L1000 700 L0 700 Z" fill="#54385C" opacity=".9"/>
+        <g class="shimmer">
+          <rect x="380" y="530" width="240" height="4" rx="2" fill="#FFDCA8" opacity=".55"/>
+          <rect x="320" y="566" width="360" height="3" rx="1.5" fill="#FFD9A0" opacity=".35"/>
+        </g>
+      </g>
+      <g class="l4">
+        <path d="M0 700 L0 610 Q250 578 500 606 Q750 632 1000 600 L1000 700 Z" fill="#3A2745"/>
+      </g>
+    </svg>
+  </div>
+  <div class="copy drift">
+    <p class="kicker">Adriatica</p>
+    <h2 class="line">The sea is still here. Begin again.</h2>
+    <a class="glow" href="#p1" data-goto="0">Begin again</a>
+  </div>
+</section>
+
+</div><!-- /stage -->
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="bloom" id="bloom" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="Zine pages">
+  <button class="arrow" id="prev" aria-label="Previous page">&#8592;</button>
+  <div class="dots" id="dots" role="tablist" aria-label="Go to page"></div>
+  <button class="arrow" id="next" aria-label="Next page">&#8594;</button>
+  <button class="arrow sound" id="sound" aria-pressed="false" aria-label="Turn sea sounds on or off">
+    <span class="off-ic" aria-hidden="true">&#9834;</span><span class="on-ic" aria-hidden="true">&#9835;</span>
+  </button>
+</nav>
+
+<p class="sr" aria-live="polite" id="announce"></p>
+
+<script>
+(function(){
+  var pages = Array.prototype.slice.call(document.querySelectorAll('.page'));
+  var bloom = document.getElementById('bloom');
+  var dotsWrap = document.getElementById('dots');
+  var announce = document.getElementById('announce');
+  var stage = document.getElementById('stage');
+  var current = 0;
+  var busy = false;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  var names = ['Cover','Split','The dive','Hvar','The crossing','Rovinj','The table','Begin again'];
+
+  // dots
+  pages.forEach(function(_, i){
+    var d = document.createElement('button');
+    d.className = 'dot';
+    d.setAttribute('aria-label', 'Page ' + (i+1) + ', ' + names[i]);
+    d.setAttribute('aria-current', i === 0 ? 'true' : 'false');
+    d.addEventListener('click', function(){ goTo(i); });
+    dotsWrap.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function goTo(i){
+    if (busy || i === current) return;
+    var target = ((i % pages.length) + pages.length) % pages.length;
+    busy = true;
+
+    if (!reduce.matches){
+      bloom.classList.remove('flash');
+      void bloom.offsetWidth;
+      bloom.classList.add('flash');
+    }
+
+    var delay = reduce.matches ? 0 : 300;
+    setTimeout(function(){
+      pages[current].classList.remove('active');
+      pages[target].classList.add('active');
+      dots[current].setAttribute('aria-current','false');
+      dots[target].setAttribute('aria-current','true');
+      current = target;
+      announce.textContent = names[target];
+      document.dispatchEvent(new CustomEvent('pagechange', {detail: target}));
+      setTimeout(function(){ busy = false; }, reduce.matches ? 300 : 700);
+    }, delay);
+  }
+
+  document.getElementById('next').addEventListener('click', function(){ goTo(current + 1); });
+  document.getElementById('prev').addEventListener('click', function(){ goTo(current - 1); });
+
+  // in-page glow links that navigate the zine
+  document.querySelectorAll('a[data-goto]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      goTo(parseInt(a.getAttribute('data-goto'), 10));
+    });
+  });
+
+  // keyboard
+  window.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') { goTo(current + 1); }
+    else if (e.key === 'ArrowLeft') { goTo(current - 1); }
+  });
+
+  // swipe
+  var tx = 0, ty = 0;
+  stage.addEventListener('touchstart', function(e){
+    tx = e.changedTouches[0].clientX;
+    ty = e.changedTouches[0].clientY;
+  }, {passive:true});
+  stage.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)){
+      goTo(dx < 0 ? current + 1 : current - 1);
+    }
+  }, {passive:true});
+
+  // gentle pointer parallax
+  if (!reduce.matches){
+    var raf = null;
+    window.addEventListener('pointermove', function(e){
+      if (raf) return;
+      raf = requestAnimationFrame(function(){
+        var nx = (e.clientX / window.innerWidth  - 0.5) * 2;
+        var ny = (e.clientY / window.innerHeight - 0.5) * 2;
+        stage.style.setProperty('--px', nx.toFixed(3));
+        stage.style.setProperty('--py', ny.toFixed(3));
+        raf = null;
+      });
+    }, {passive:true});
+  }
+})();
+
+/* ================= soundscape, all synthesized, no files ================= */
+(function(){
+  var btn = document.getElementById('sound');
+  var AC = null, master, padOsc = [], oceanGain, filt;
+  var on = false, page = 0, accentTimer = null, splashTimer = null, splashKick = null;
+
+  // one warm root per page, so each coast hums its own chord
+  var roots = [110, 130.81, 98, 116.54, 87.31, 110, 82.41, 98];
+
+  function ensure(){
+    if (AC) return;
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    master = AC.createGain(); master.gain.value = 0; master.connect(AC.destination);
+
+    // ocean: looped brown noise, lowpassed, with a slow swell
+    var len = AC.sampleRate * 4, buf = AC.createBuffer(1, len, AC.sampleRate);
+    var d = buf.getChannelData(0), last = 0;
+    for (var i = 0; i < len; i++){
+      var w = Math.random() * 2 - 1;
+      last = (last + 0.02 * w) / 1.02;
+      d[i] = last * 3.5;
+    }
+    var src = AC.createBufferSource(); src.buffer = buf; src.loop = true;
+    filt = AC.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = 420; filt.Q.value = 0.6;
+    oceanGain = AC.createGain(); oceanGain.gain.value = 0.5;
+    src.connect(filt); filt.connect(oceanGain); oceanGain.connect(master); src.start();
+    var lfo = AC.createOscillator(), lg = AC.createGain();
+    lfo.frequency.value = 0.08; lg.gain.value = 0.2;
+    lfo.connect(lg); lg.connect(oceanGain.gain); lfo.start();
+
+    // pad: detuned triangles breathing under everything
+    var padGain = AC.createGain(); padGain.gain.value = 0.045;
+    var pf = AC.createBiquadFilter(); pf.type = 'lowpass'; pf.frequency.value = 900;
+    padGain.connect(pf); pf.connect(master);
+    [[1, -5], [1, 5], [1.5, 0], [2, 3]].forEach(function(p){
+      var o = AC.createOscillator(); o.type = 'triangle';
+      o.frequency.value = roots[page] * p[0]; o.detune.value = p[1];
+      var g = AC.createGain(); g.gain.value = p[0] > 1 ? 0.35 : 0.7;
+      o.connect(g); g.connect(padGain); o.start();
+      padOsc.push({o: o, r: p[0]});
+    });
+  }
+
+  function chord(i){
+    if (!AC) return;
+    var t = AC.currentTime;
+    padOsc.forEach(function(p){
+      p.o.frequency.cancelScheduledValues(t);
+      p.o.frequency.setTargetAtTime(roots[i] * p.r, t, 1.8);
+    });
+  }
+
+  function tone(freq, dur, vol, type){
+    var t = AC.currentTime;
+    var o = AC.createOscillator(), g = AC.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(master);
+    o.start(t); o.stop(t + dur + 0.1);
+  }
+
+  function bell(){           // church bell, far away
+    tone(523.25, 3.2, 0.05); tone(1046.5, 2.2, 0.02);
+  }
+  function chime(){          // one soft sparkle
+    var notes = [880, 987.77, 1174.66, 1318.5];
+    tone(notes[Math.floor(Math.random() * notes.length)], 1.8, 0.025);
+  }
+  function gull(){           // two cries over the crossing
+    var t = AC.currentTime;
+    [0, 0.35].forEach(function(off){
+      var o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(1350, t + off);
+      o.frequency.exponentialRampToValueAtTime(850, t + off + 0.28);
+      g.gain.setValueAtTime(0, t + off);
+      g.gain.linearRampToValueAtTime(0.03, t + off + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + off + 0.3);
+      o.connect(g); g.connect(master);
+      o.start(t + off); o.stop(t + off + 0.4);
+    });
+  }
+  function splash(){         // the diver hits the water
+    var t = AC.currentTime;
+    var len = AC.sampleRate * 0.7, buf = AC.createBuffer(1, len, AC.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++){ d[i] = (Math.random() * 2 - 1) * (1 - i / len); }
+    var s = AC.createBufferSource(); s.buffer = buf;
+    var f = AC.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 0.7;
+    f.frequency.setValueAtTime(1400, t);
+    f.frequency.exponentialRampToValueAtTime(300, t + 0.6);
+    var g = AC.createGain(); g.gain.value = 0.16;
+    s.connect(f); f.connect(g); g.connect(master); s.start(t);
+  }
+
+  function startAccents(){
+    clearInterval(accentTimer);
+    accentTimer = setInterval(function(){
+      if (!on) return;
+      var r = Math.random();
+      if (page === 4 && r < 0.55) gull();
+      else if ((page === 1 || page === 5) && r < 0.4) bell();
+      else if (page === 6 && r < 0.5) chime();
+      else if (r < 0.25) chime();
+    }, 5500);
+  }
+
+  function syncDiveSplash(){
+    clearTimeout(splashKick); clearInterval(splashTimer);
+    if (page !== 2 || !on) return;
+    // diver leaves the rock 1.2s in, meets the water around 3.5s, then every 9s
+    splashKick = setTimeout(function(){
+      splash();
+      splashTimer = setInterval(splash, 9000);
+    }, 3500);
+  }
+
+  document.addEventListener('pagechange', function(e){
+    page = e.detail;
+    if (!AC) return;
+    chord(page);
+    if (on){
+      // a breath of brighter water as you step through the doorway
+      var t = AC.currentTime;
+      filt.frequency.cancelScheduledValues(t);
+      filt.frequency.setTargetAtTime(820, t, 0.15);
+      filt.frequency.setTargetAtTime(420, t + 0.8, 0.9);
+    }
+    syncDiveSplash();
+  });
+
+  btn.addEventListener('click', function(){
+    ensure();
+    if (AC.state === 'suspended') AC.resume();
+    on = !on;
+    btn.setAttribute('aria-pressed', String(on));
+    var t = AC.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setTargetAtTime(on ? 0.5 : 0, t, 0.8);
+    if (on){ startAccents(); syncDiveSplash(); askGyro(); }
+    else { clearInterval(accentTimer); clearTimeout(splashKick); clearInterval(splashTimer); }
+  });
+
+  /* gyroscope parallax on mobile, asked politely inside a tap */
+  var gyroDone = false;
+  function askGyro(){
+    if (gyroDone) return; gyroDone = true;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var enable = function(){
+      window.addEventListener('deviceorientation', function(ev){
+        if (ev.gamma == null) return;
+        var nx = Math.max(-1, Math.min(1, ev.gamma / 28));
+        var ny = Math.max(-1, Math.min(1, (ev.beta - 42) / 28));
+        var st = document.getElementById('stage');
+        st.style.setProperty('--px', nx.toFixed(3));
+        st.style.setProperty('--py', ny.toFixed(3));
+      }, {passive: true});
+    };
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function'){
+      DeviceOrientationEvent.requestPermission().then(function(s){
+        if (s === 'granted') enable();
+      }).catch(function(){});
+    } else if ('DeviceOrientationEvent' in window){
+      enable();
+    }
+  }
+})();
+
+/* ================= drifting motes, one colour story per coast ================= */
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var canvas = document.getElementById('fx');
+  var ctx = canvas.getContext('2d');
+  var page = 0, W = 0, H = 0;
+
+  var palettes = [
+    ['#FFD9A0', '#F0A868', '#D89A93'],   // cover, golden hour
+    ['#FFE9C2', '#E8C8A8'],              // split, warm dust
+    ['#BFE8DF', '#8FD0C4', '#F7EDDF'],   // dive, sea spray
+    ['#CBB4E8', '#A891C6', '#FFD9A0'],   // hvar, lavender pollen
+    ['#BFE8DF', '#F7EDDF'],              // crossing, salt air
+    ['#FFD9A0', '#E8B4A0'],              // rovinj, lamp glow
+    ['#FFE9C2', '#FFD9A0', '#C4708A'],   // table, candle embers
+    ['#FFD9A0', '#D89A93', '#A891C6']    // loop, everything at once
+  ];
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function pick(){
+    var p = palettes[page];
+    return p[Math.floor(Math.random() * p.length)];
+  }
+  function make(fresh){
+    return {
+      x: Math.random() * W,
+      y: fresh ? H + 10 : Math.random() * H,
+      r: 1 + Math.random() * 2.2,
+      vy: 0.12 + Math.random() * 0.28,
+      sway: 12 + Math.random() * 26,
+      ph: Math.random() * Math.PI * 2,
+      sp: 0.004 + Math.random() * 0.006,
+      c: pick(),
+      tw: Math.random() * Math.PI * 2
+    };
+  }
+  var motes = [];
+  for (var i = 0; i < 26; i++) motes.push(make(false));
+
+  document.addEventListener('pagechange', function(e){ page = e.detail; });
+
+  function frame(){
+    ctx.clearRect(0, 0, W, H);
+    motes.forEach(function(m, i){
+      m.ph += m.sp; m.tw += 0.02; m.y -= m.vy;
+      var x = m.x + Math.sin(m.ph) * m.sway;
+      var a = 0.22 + 0.2 * Math.sin(m.tw);
+      ctx.globalAlpha = Math.max(0.04, a);
+      ctx.fillStyle = m.c;
+      ctx.beginPath();
+      ctx.arc(x, m.y, m.r, 0, Math.PI * 2);
+      ctx.fill();
+      if (m.y < -12) motes[i] = make(true);
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
